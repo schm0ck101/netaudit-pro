@@ -41,14 +41,22 @@ def _excepthook(t, e, tb):
 
 
 def cli_collect(out: str | None, pdf: str | None = None, client: str = "", site: str = "", deep: bool = False,
-                ranges: str = "", exclude: str = "", communities: str = "") -> int:
-    """Mode ligne de commande (sans interface) : diagnostic -> JSON et/ou PDF."""
+                ranges: str = "", exclude: str = "", communities: str = "", ssh_user: str = "", ssh_key: str = "",
+                ssh_targets: str = "") -> int:
+    """Mode ligne de commande (sans interface) : diagnostic -> JSON et/ou PDF.
+    Le mot de passe SSH éventuel est lu dans la variable d'environnement NETAUDIT_SSH_PASSWORD
+    (jamais en argument : il resterait visible dans la liste des processus)."""
+    import os
+
     from .analyze.engine import analyze
     from .net.snmp import Credential
+    from .net.ssh import SshCred
     from .scan import runner
     split = lambda t: [x.strip() for x in (t or "").split(",") if x.strip()]  # noqa: E731
+    ssh_creds = [SshCred(ssh_user, os.environ.get("NETAUDIT_SSH_PASSWORD", ""), ssh_key)] if ssh_user else []
     opts = runner.Options(deep=deep, extra_ranges=split(ranges), exclude=split(exclude),
-                          snmp_creds=[Credential("2c", c) for c in split(communities)])
+                          snmp_creds=[Credential("2c", c) for c in split(communities)], ssh_creds=ssh_creds,
+                          ssh_targets=split(ssh_targets))
     snap = runner.collect(opts, progress=lambda k, label, st, d: print(f"[{st}] {label} {d}", flush=True) if st != "info" else None)
     a = analyze(snap)
     if out:
@@ -72,6 +80,9 @@ def main(argv=None) -> int:
     ap.add_argument("--ranges", default="", help="plages supplémentaires (séparées par des virgules)")
     ap.add_argument("--exclude", default="", help="adresses exclues")
     ap.add_argument("--community", default="", help="communautés SNMP v2c (séparées par des virgules)")
+    ap.add_argument("--ssh-user", default="", help="utilisateur SSH (lecture seule) ; mot de passe : variable NETAUDIT_SSH_PASSWORD")
+    ap.add_argument("--ssh-key", default="", help="fichier de clé privée SSH")
+    ap.add_argument("--ssh-targets", default="", help="IP à interroger en SSH en plus des équipements réseau détectés")
     ap.add_argument("--client", default="")
     ap.add_argument("--site", default="")
     args, _rest = ap.parse_known_args(argv)
@@ -79,7 +90,8 @@ def main(argv=None) -> int:
     log.info("Démarrage %s %s", APP_NAME, APP_VERSION)
     if args.collect or args.pdf:
         try:
-            return cli_collect(args.collect, args.pdf, args.client, args.site, args.deep, args.ranges, args.exclude, args.community)
+            return cli_collect(args.collect, args.pdf, args.client, args.site, args.deep, args.ranges, args.exclude, args.community,
+                               args.ssh_user, args.ssh_key, args.ssh_targets)
         except Exception:
             log.exception("Mode ligne de commande")
             return 1
