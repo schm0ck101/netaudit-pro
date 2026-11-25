@@ -1,0 +1,5 @@
+# Dépendances d'exécution de NetAudit Pro
+# Qt 6.9 maximum : à partir de 6.10, Qt exige icuuc.dll, absent de Windows Server 2016.
+PySide6-Essentials>=6.9,<6.10
+# SSH en lecture seule vers les équipements
+paramiko>=3.4
