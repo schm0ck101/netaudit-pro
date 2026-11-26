@@ -47,3 +47,28 @@ Python 3.13 + PySide6 6.9 (compatible Windows 10/11 et Windows Server 2016+), pr
 (ICMP/ARP/compteurs via l'API Windows, DNS, mDNS, SSDP, NetBIOS, DHCP, SNMP v1/v2c/v3 avec AES en Python pur, X.509),
 SSH via paramiko. Compilation : `build.ps1` (tests, exécutable, version portable, installateur Inno Setup, release GitHub).
 Base des fabricants : `tools/make_oui.py` à partir des registres IEEE.
+
+## Licence
+
+[MIT](LICENSE) — © 2026 SCHMOCK.
+
+## Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by
+[SignPath Foundation](https://signpath.org).
+
+- **Committers and reviewers:** [SCHMOCK](https://github.com/schm0ck101)
+- **Approvers:** [SCHMOCK](https://github.com/schm0ck101)
+
+Release binaries (portable executable and installer) are built from this repository by GitHub Actions
+(`.github/workflows/build.yml`) and signed through SignPath; every release is approved manually.
+
+### Privacy policy
+
+This program will not transfer any information to other networked systems unless specifically requested by the user
+or the person installing or operating it. It contains no telemetry, no analytics and no automatic update check.
+Network connections:
+
+- **Real tests, only when the user starts an audit**: scans of the local networks and address ranges selected by the user (ping, ARP, common ports, SNMP / SSH read-only with the credentials the user enters, mDNS, SSDP, NetBIOS, DHCP discovery), public DNS resolvers (`8.8.8.8`, `1.1.1.1`, `9.9.9.9`, `208.67.222.222`), time servers (`pool.ntp.org`, `time.windows.com`), connectivity and latency checks (`www.msftconnecttest.com`, `www.google.com`, `www.cloudflare.com`, `www.microsoft.com`), public IP lookup (`myip.opendns.com`).
+
+Results stay on the computer (local data folder next to the portable executable or in `%APPDATA%`).
